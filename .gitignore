@@ -1,0 +1,12 @@
+# Ignore file for Conky configuration and scripts
+trading212_config.json
+.trading212_*
+
+# Ignore temporary files
+*.tmp
+
+# venv and env directories
+venv/
+.venv/
+env/
+*.pyc

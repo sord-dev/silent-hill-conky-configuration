@@ -3,6 +3,7 @@
 A comprehensive conky configuration for trading, news, weather, and system monitoring with clean, portable setup.
 
 ![Conky Trading Dashboard Preview](media/Screenshot_2025-10-02_15-57-08.png)
+[Background Used](./media/silent-hill-background.jpg)
 
 ## Features
 

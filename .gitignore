@@ -1,0 +1,5 @@
+# Ignore file for Conky configuration and scripts
+trading212_config.json
+headlines_cache.json
+
+.trading212_*

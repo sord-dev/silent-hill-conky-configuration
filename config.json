@@ -1,0 +1,45 @@
+{
+  "general": {
+    "cache_duration_minutes": 30,
+    "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+  },
+  "location": {
+    "name": "London",
+    "latitude": 51.5074,
+    "longitude": -0.1278,
+    "timezone_offset_hours": 1
+  },
+  "news": {
+    "sources": {
+      "bbc": "http://feeds.bbci.co.uk/news/rss.xml",
+      "guardian": "https://www.theguardian.com/uk/rss",
+      "sky": "https://feeds.skynews.com/feeds/rss/home.xml",
+      "hackernews": "https://hnrss.org/frontpage",
+      "techcrunch": "https://techcrunch.com/feed/"
+    }
+  },
+  "trading212": {
+    "cache_file": ".trading212_cache.pkl",
+    "config_file": "trading212_config.json"
+  },
+  "weather": {
+    "api_url": "wttr.in",
+    "format": "%t+%C&m"
+  },
+  "currency": {
+    "api_url": "https://api.exchangerate-api.com/v4/latest/GBP",
+    "target_currency": "USD"
+  },
+  "sun_moon": {
+    "api_url": "https://api.sunrise-sunset.org/json"
+  },
+  "conky": {
+    "update_intervals": {
+      "news_seconds": 8,
+      "sun_times_seconds": 3600,
+      "weather_seconds": 1800,
+      "currency_seconds": 600,
+      "trading212_seconds": 300
+    }
+  }
+}

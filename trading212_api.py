@@ -164,9 +164,11 @@ class ConkyFormatter:
     """Format Trading212 data for Conky display"""
     
     @staticmethod
-    def format_currency(amount: float, currency: str = "£") -> str:
+    def format_currency(amount: float, currency: str = "£", show_full: bool = False) -> str:
         """Format currency with appropriate symbol"""
-        if abs(amount) >= 1000000:
+        if show_full:
+            return f"{currency}{amount:.2f}"
+        elif abs(amount) >= 1000000:
             return f"{currency}{amount/1000000:.1f}M"
         elif abs(amount) >= 1000:
             return f"{currency}{amount/1000:.1f}K"
@@ -254,12 +256,72 @@ def main():
                 print(len(pending_orders) if pending_orders else 0)
             elif data_type == 'top_position':
                 if portfolio_data and len(portfolio_data) > 0:
-                    # Sort by value (quantity * current price)
-                    top_pos = max(portfolio_data, key=lambda x: abs(x.get('quantity', 0) * x.get('currentPrice', 0)))
-                    ticker = top_pos.get('ticker', 'N/A').replace('_US_EQ', '').replace('_UK_EQ', '').replace('_L_EQ', '')
-                    value = top_pos.get('quantity', 0) * top_pos.get('currentPrice', 0)
+                    def calculate_invested(pos):
+                        """Calculate invested amount handling both pence and pound stocks"""
+                        ticker = pos.get('ticker', '')
+                        quantity = pos.get('quantity', 0)
+                        avg_price = pos.get('averagePrice', 0)
+                        
+                        # Specific ETFs that are priced in pence despite being UK stocks
+                        pence_etfs = ['CSP1', 'CSP2', 'VUKE', 'VHYL', 'VMID', 'VAPX', 'VUSA', 'VJPN', 'VFEU', 'VEUR', 'VWRL', 'VODL', 'IUKP', 'ISF', 'SUK2']
+                        # US ETFs that might be priced in pence
+                        us_pence_etfs = ['SPY', 'QQQ', 'IWM', 'DIA', 'VTI', 'VOO', 'IVV', 'GLD', 'SLV', 'TLT', 'HYG', 'LQD']
+                        
+                        clean_ticker = ticker.replace('_US_EQ', '').replace('_UK_EQ', '').replace('_L_EQ', '').replace('_l_EQ', '').replace('_EQ', '')
+                        
+                        # Determine if price is in pence
+                        price_in_pence = False
+                        
+                        if clean_ticker in pence_etfs:
+                            price_in_pence = True
+                        elif clean_ticker in us_pence_etfs:
+                            price_in_pence = True
+                        elif ticker.lower().endswith(('l_eq', 'uk_eq')):
+                            # For UK stocks, assume pence unless it's a known pound-priced ETF
+                            if clean_ticker not in ['VWRP', 'VWRPl', 'VWRL', 'ISF', 'VMID']:  # Common UK ETFs priced in pounds
+                                price_in_pence = True
+                        
+                        if price_in_pence:
+                            # Price is in pence, convert to pounds
+                            invested = quantity * (avg_price / 100)
+                        else:
+                            # Price is already in pounds
+                            invested = quantity * avg_price
+                        
+                        return abs(invested)
+                    
+                    # Sort by calculated invested amount
+                    top_pos = max(portfolio_data, key=calculate_invested)
+                    ticker = top_pos.get('ticker', 'N/A').replace('_US_EQ', '').replace('_UK_EQ', '').replace('_L_EQ', '').replace('_l_EQ', '')
+                    quantity = top_pos.get('quantity', 0)
+                    avg_price = top_pos.get('averagePrice', 0)
                     ppl = top_pos.get('ppl', 0)
-                    print(f"{ticker}: {ConkyFormatter.format_currency(value)}")
+                    
+# Calculate invested amount with proper currency handling
+                    pence_etfs = ['CSP1', 'CSP2', 'VUKE', 'VHYL', 'VMID', 'VAPX', 'VUSA', 'VJPN', 'VFEU', 'VEUR', 'VWRL', 'VODL', 'IUKP', 'ISF', 'SUK2']
+                    us_pence_etfs = ['SPY', 'QQQ', 'IWM', 'DIA', 'VTI', 'VOO', 'IVV', 'GLD', 'SLV', 'TLT', 'HYG', 'LQD']
+                    clean_ticker = ticker.replace('_US_EQ', '').replace('_UK_EQ', '').replace('_L_EQ', '').replace('_l_EQ', '').replace('_EQ', '')
+                    
+                    # Determine if price is in pence
+                    price_in_pence = False
+                    
+                    if clean_ticker in pence_etfs:
+                        price_in_pence = True
+                    elif clean_ticker in us_pence_etfs:
+                        price_in_pence = True
+                    elif ticker.lower().endswith(('l_eq', 'uk_eq')):
+                        # For UK stocks, assume pence unless it's a known pound-priced ETF
+                        if clean_ticker not in ['VWRP', 'VWRPl', 'VWRL', 'ISF', 'VMID']:  # Common UK ETFs priced in pounds
+                            price_in_pence = True
+                    
+                    if price_in_pence:
+                        invested = quantity * (avg_price / 100)
+                    else:
+                        invested = quantity * avg_price
+                    
+                    # Add direction indicator for short positions
+                    direction = "SHORT " if quantity < 0 else ""
+                    print(f"{ticker}: {direction}{ConkyFormatter.format_currency(abs(invested), show_full=True)}")
                 else:
                     print("No positions")
             elif data_type == 'status':

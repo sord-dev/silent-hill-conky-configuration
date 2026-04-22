@@ -9,19 +9,6 @@
     "longitude": -0.1278,
     "timezone_offset_hours": 1
   },
-  "news": {
-    "sources": {
-      "bbc": "http://feeds.bbci.co.uk/news/rss.xml",
-      "guardian": "https://www.theguardian.com/uk/rss",
-      "sky": "https://feeds.skynews.com/feeds/rss/home.xml",
-      "hackernews": "https://hnrss.org/frontpage",
-      "techcrunch": "https://techcrunch.com/feed/"
-    }
-  },
-  "trading212": {
-    "cache_file": ".trading212_cache.pkl",
-    "config_file": "trading212_config.json"
-  },
   "weather": {
     "api_url": "wttr.in",
     "format": "%t+%C&m"
@@ -38,8 +25,7 @@
       "news_seconds": 8,
       "sun_times_seconds": 3600,
       "weather_seconds": 1800,
-      "currency_seconds": 600,
-      "trading212_seconds": 300
+      "currency_seconds": 600
     }
   }
 }

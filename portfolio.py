@@ -1,31 +1,37 @@
 #!/usr/bin/env python3
 import sys
 import json
-import subprocess
+import urllib.request
+import os
+
+import time
 import os
 
 CACHE = '/tmp/portfolio_cache.json'
-SERVICE = 'https://212portforlio.picxi.uk/summary'
+SERVICE = 'http://212portfolio.picxi.uk/summary'
 
 def fetch():
     try:
-        r = subprocess.run(['curl', '-s', '--max-time', '5', SERVICE], 
-                          capture_output=True, text=True)
-        data = json.loads(r.stdout)
+        with urllib.request.urlopen(SERVICE, timeout=10) as resp:
+            data = json.loads(resp.read().decode())
         with open(CACHE, 'w') as f:
             json.dump(data, f)
         return data
-    except:
+    except Exception as e:
+        with open('/tmp/fetch_debug.txt', 'a') as f:
+            f.write(f"{time.time()} fetch error: {type(e).__name__}: {e}\n")
         return None
 
-def load():
+def load(max_age=300):
     try:
+        if time.time() - os.path.getmtime(CACHE) > max_age:
+            return None
         with open(CACHE) as f:
             return json.load(f)
     except:
         return None
 
-d = load() or fetch() or {}
+d = load() or fetch() or load(max_age=86400) or {}
 field = sys.argv[1] if len(sys.argv) > 1 else 'total'
 
 if field == 'total':

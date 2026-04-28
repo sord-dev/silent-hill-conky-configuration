@@ -8,7 +8,7 @@ import time
 import os
 
 CACHE = '/tmp/portfolio_cache.json'
-SERVICE = 'http://212portfolio.picxi.uk/summary'
+SERVICE = 'https://212portfolio.picxi.uk/summary'
 
 def fetch():
     try:
